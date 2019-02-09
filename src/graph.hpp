@@ -1,111 +1,160 @@
 #ifndef MYLIB_GRAPH
 #define MYLIB_GRAPH
+
 #include "edge.hpp"
 #include <functional>
-#include <iomanip>
 #include <iostream>
 #include <map>
+#include <optional>
 #include <ostream>
-#include <random>
 #include <set>
 #include <stdexcept>
+#include <utility>
 #include <vector>
 
 namespace mylib {
 
-template <class T> class Graph {
-  T **graph;
-  int size; // number of nodes
+template <class Node> class Graph {
+protected:
+  std::unordered_map<Node, std::unordered_map<Node, Edge<Node>>> graph;
+  std::set<Node> to_nodes; // storing edges end (to(s)) nodes (as from could be
+                           // collected from graph)
+
 public:
   static inline const char *INFO = "mylib::Graph";
-  int get_size() const { return size; }
-  T get_item(int i, int j) const { return graph[i][j]; }
-  void set_item(int i, int j, T item) { graph[i][j] = item; }
-  void set_item_symmetric(int i, int j, T item) {
-    graph[i][j] = item;
-    graph[j][i] = item;
+  /**
+  return size or more precisely the number of edges
+  */
+  unsigned int get_size() const {
+    unsigned int size;
+    for (auto it = graph.begin(); it < graph.end(); it++) {
+      size += it->second.size();
+    }
+    return size;
   }
 
-  explicit Graph(Graph<T> const &g_source)
-      : size(g_source.get_size()), graph(new T *[g_source.get_size()]) {
-    // deep copy constructor
-    for (int i = 0; i < size; ++i) {
-      graph[i] = new T[size];
-      for (int j = 0; j < size; j++) {
-        graph[i][j] = g_source.get_item(i, j);
+  /*
+   * return the graph
+   **/
+  std::unordered_map<Node, std::unordered_map<Node, Edge<Node>>> get_graph() {
+    return graph;
+  }
+
+  /**
+   * get edge given source and dest nodes
+   */
+  std::optional<Edge<Node>> get_edge(Node from_, Node to_) const {
+    auto source_edges = graph.find(from_);
+    if (source_edges != graph.end()) {
+      auto source_dest_edge = source_edges->second.find(to_);
+      if (source_dest_edge != source_edges->second.end()) {
+        return {source_dest_edge->second};
+      }
+    }
+    return {};
+  }
+
+  void set_item(Edge<Node> edge) {
+    // check the first end
+    auto first_edge_end =
+        graph.find(edge.get_end_1()); // search the first end in the graph
+    if (first_edge_end == graph.end()) {
+      // the first edge end is not found (not connected to any of the nodes in
+      // the graph)
+      std::unordered_map<Node, Edge<Node>>
+          first_end_init; // initializa a connection map
+      first_end_init.insert(std::make_pair(edge.get_end_2(), edge));
+      graph[edge.get_end_1()] = first_end_init;
+    } else {
+      // the first edge is already in the graph so update (overwrite) with
+      // second end
+      first_edge_end->second.insert(std::make_pair(edge.get_end_2(), edge));
+    }
+    // update nodes
+    this->to_nodes.insert(edge.get_end_2());
+  }
+
+  void set_item_symmetric(Edge<Node> edge) {
+    set_item(edge);
+    set_item(edge.sym_reverse());
+  }
+
+  /**
+   * Constructors
+   */
+  Graph() {}
+  explicit Graph(Graph<Node> const &g_source) { graph = g_source.graph; }
+  explicit Graph(Graph<Node> *const g_source) { graph = g_source->graph; }
+  /**
+   * Construct a collapsed (d(x,y)==0 for all x, y in graph nodes) complete
+   * graph from a list of nodes
+   */
+  explicit Graph(std::vector<Node> nodes) {
+    for (auto end_1 : nodes) {
+      for (auto end_2 : nodes) {
+        set_item(new Edge<Node>(end_1, end_2));
       }
     }
   }
 
-  explicit Graph(Graph<T> *const g_source)
-      : size(g_source->get_size()), graph(new T *[g_source->get_size()]) {
-    // deep copy constructor
-    for (int i = 0; i < this->size; ++i) {
-      this->graph[i] = new T[this->size];
-      for (int j = 0; j < size; j++) {
-        this->graph[i][j] = g_source->get_item(i, j);
+  explicit Graph(std::vector<Node> nodes,
+                   std::function<Edge<Node>(Node, Node)> generator) {
+    for (auto from_ : nodes) {
+      for (auto to_ : nodes) {
+        set_item(generator(from_, to_));
       }
     }
   }
 
-  explicit Graph(int graph_size)
-      : size(graph_size), graph(new T *[graph_size]) {
-    for (int i = 0; i < size; ++i) {
-      graph[i] = new T[size];
-      for (int j = 0; j < i; ++j) {
-        graph[i][j] = graph[j][i] = T();
-      }
-    }
-  }
-
-  Graph *filter(std::function<bool(T)> filter) {
-    Graph *filtered_graph = new Graph(this->get_size());
-    for (int i = 0; i < size; ++i) {
-      // only under symmetric dist.
-      for (int j = 0; j <= i; j++) {
-        if (filter(get_item(i, j))) {
-          filtered_graph->set_item(i, j, graph[i][j]);
-          filtered_graph->set_item(j, i, graph[i][j]);
+  /**
+   * filter the graph using a filtering function (functional style)
+   */
+  Graph *filter(std::function<bool(Edge<Node>)> filter) {
+    Graph *filtered_graph = new Graph();
+    for (auto from_ : this->graph) {
+      for (auto to_ : from_.second) {
+        if (filter(to_.second)) {
+          filtered_graph->set_item(to_.second);
         }
       }
     }
     return filtered_graph;
   }
 
-  void random_fill(std::function<T()> generator) {
-
-    for (int i = 0; i < size; ++i) {
-      for (int j = 0; j < i; j++) {
-        graph[i][j] = graph[j][i] = generator();
-      }
-    }
-  }
-
   /**
-   * returns for directly reachable nodes (with defined direct age)
+   * return directly reachable nodes (with defined direct edge)
    */
-  std::map<int, Edge> get_next_reachable(int source) {
-    std::map<int, Edge> reachable;
-    if (source < this->size) {
-      for (int j = 0; j < this->size; j++) {
-        if (this->graph[source][j].is_enabled()) {
-          reachable.insert(std::make_pair(j, this->graph[source][j]));
-        }
+  std::optional<std::unordered_map<Node, Edge<Node>>>
+  get_next_reachable(Node source) {
+
+    auto connected_nodes = graph.find(source);
+    if (connected_nodes != graph.end()) {
+      // debug print
+      std::cout << "source: " << source;
+      for (auto node : connected_nodes->second) {
+        std::cout << " --> " << node.first << " (" << node.second << ")";
       }
+      std::cout << std::endl;
+      return connected_nodes->second;
     }
-    return reachable;
+    return {};
   }
 
   /**
    * return the path length from a list of nodes (also check for cycles)
    */
-  double get_path_length(std::vector<int> path) {
+  double get_path_length(std::vector<Node> path) {
     double length = 0;
     if (path.size() > 1) {
       auto from = 0;
-      std::set<int> nodes; // nodes to check cycles
+      // std::set<int> nodes; // nodes to check cycles
       while (from < path.size() - 1) {
-        length += graph[path[from]][path[from + 1]].get_distance();
+        auto edge_ = get_edge(path[from], path[from + 1]);
+        if (edge_) {
+          length += edge_.value().get_distance();
+        } else {
+          return -1; // as there is no path (disrupted/cut)
+        }
         from += 1;
       }
     }
@@ -113,7 +162,7 @@ public:
   }
 
   /**
-   * get the index of tje shortest path given a vector of paths
+   * get the index of the shortest path given a vector of paths
    */
   int get_shortest_path(std::vector<std::vector<int>> paths) {
     if (paths.size() > 0) {
@@ -134,10 +183,10 @@ public:
     out << Graph::INFO << std::endl;
     out << "--";
     out << "  Dist. matrix " << std::endl;
-    for (int i = 0; i < g.get_size(); ++i) {
-      out << "  ";
-      for (int j = 0; j < g.get_size(); ++j) {
-        out << g.get_item(i, j) << " ";
+    for (auto from_ : g.graph) {
+      out << from_.first;
+      for (auto to_ : from_.second) {
+        out << " -> " << to_.first << "("<<to_.second.get_distance() << ")";
       }
       out << std::endl;
     }
@@ -145,26 +194,32 @@ public:
     return out;
   }
 
-  std::vector<int> dijkstra(int starting_node_index, int final_node_index) {
-    std::set<int> explored({starting_node_index}); // list of explored nodes
-    std::vector<std::vector<int>> paths(
+  std::vector<Node> dijkstra(Node starting_node_index, Node final_node_index) {
+    std::set<Node> explored(
+        {starting_node_index}); // list of explored nodes (closed set)
+    std::vector<std::vector<Node>> paths(
         {{starting_node_index}}); // paths to explore (extend)
-   
+
     while (paths.size() > 0) {
       auto shortest_path_index = get_shortest_path(paths);
       auto shortest_path = paths[shortest_path_index];
-      paths.erase(paths.begin() + shortest_path_index); // pop the shortest path to explore
+      paths.erase(paths.begin() +
+                  shortest_path_index); // pop the shortest path to explore
       if (shortest_path.back() == final_node_index) {
         // found shortest path to destination (final node_index)
         return shortest_path;
       }
       // get the reachable nodes starting from last node of the path
-      for (auto node : get_next_reachable(shortest_path.back())) {
-        if (explored.find(node.first) == explored.end()) {
-          // extend the path with the node
-          auto path_to_extend = shortest_path;
-          path_to_extend.push_back(node.first);
-          paths.push_back(path_to_extend);
+      auto next_reachable = get_next_reachable(shortest_path.back());
+      if (next_reachable) {
+        for (auto node : next_reachable.value()) {
+          if (explored.find(node.first) == explored.end()) {
+            // extend the path with the node (as the node is not yet in the
+            // explored set)
+            auto path_to_extend = shortest_path;
+            path_to_extend.push_back(node.first);
+            paths.push_back(path_to_extend);
+          }
         }
       }
       // update the explored set
