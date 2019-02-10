@@ -4,13 +4,14 @@
 #include "edge.hpp"
 #include <functional>
 #include <iostream>
-#include <map>
-#include <optional>
+#include <unordered_map>
 #include <ostream>
 #include <set>
 #include <stdexcept>
 #include <utility>
 #include <vector>
+
+#include <boost/optional.hpp>
 
 namespace mylib {
 
@@ -21,7 +22,7 @@ protected:
                            // collected from graph)
 
 public:
-  static inline const char *INFO = "mylib::Graph";
+  static constexpr const char *INFO = "mylib::Graph";
   /**
   return size or more precisely the number of edges
   */
@@ -43,7 +44,7 @@ public:
   /**
    * get edge given source and dest nodes
    */
-  std::optional<Edge<Node>> get_edge(Node from_, Node to_) const {
+  boost::optional<Edge<Node>> get_edge(Node from_, Node to_) const {
     auto source_edges = graph.find(from_);
     if (source_edges != graph.end()) {
       auto source_dest_edge = source_edges->second.find(to_);
@@ -124,7 +125,7 @@ public:
   /**
    * return directly reachable nodes (with defined direct edge)
    */
-  std::optional<std::unordered_map<Node, Edge<Node>>>
+  boost::optional<std::unordered_map<Node, Edge<Node>>>
   get_next_reachable(Node source) {
 
     auto connected_nodes = graph.find(source);
@@ -151,7 +152,7 @@ public:
       while (from < path.size() - 1) {
         auto edge_ = get_edge(path[from], path[from + 1]);
         if (edge_) {
-          length += edge_.value().get_distance();
+          length += edge_.get().get_distance();
         } else {
           return -1; // as there is no path (disrupted/cut)
         }
