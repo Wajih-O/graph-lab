@@ -29,19 +29,22 @@ template <class Node> class Edge {
 private:
   bool enabled;
   double distance;
-  Node end_1, end_2; // two ends of the edge
+  Node from_, to_; // two ends of the edge
 
 public:
   /**
    * Get distance
    */
   double get_distance() const { return distance; }
+  /**
+   * get edge status
+   */
   bool is_enabled() const { return enabled; }
-  Node get_end_1() { return end_1; }
-  Node get_end_2() { return end_2; }
+  Node from() { return from_; }
+  Node to() { return to_; }
 
   /**
-   * Randomely generate edges
+   * Randomly generate edges
    * returns an edge for each call
    * where the distance is between lower and upper bounds
    */
@@ -69,18 +72,18 @@ public:
 
   /**
    * builds/return reverse (symmetric: same distance/undirected graph) Edge from
-   * end_2 to end_1
+   * to_ to from_
    */
   Edge<Node> sym_reverse() {
-    return  Edge<Node>(this->end_2, this->end_1, this->enabled,
+    return  Edge<Node>(this->to_, this->from_, this->enabled,
                           this->distance);
   }
 
-  Edge(Node end_1, Node end_2)
-      : enabled(false), distance(0.0), end_1(end_1), end_2(end_2) {}
+  Edge(Node from_, Node to_)
+      : enabled(false), distance(0.0), from_(from_), to_(to_) {}
 
-  Edge(Node end_1, Node end_2, bool _enabled, double _dist)
-      : enabled(_enabled), distance(_dist), end_1(end_1), end_2(end_2) {}
+  Edge(Node from_, Node to_, bool _enabled, double _dist)
+      : enabled(_enabled), distance(_dist), from_(from_), to_(to_) {}
 
   bool collapsed() { return distance == 0.0; }
 

@@ -55,29 +55,29 @@ public:
     return {};
   }
 
-  void set_item(Edge<Node> edge) {
+  void add_edge(Edge<Node> edge) {
     // check the first end
     auto first_edge_end =
-        graph.find(edge.get_end_1()); // search the first end in the graph
+        graph.find(edge.from()); // search the first end in the graph
     if (first_edge_end == graph.end()) {
       // the first edge end is not found (not connected to any of the nodes in
       // the graph)
       std::unordered_map<Node, Edge<Node>>
           first_end_init; // initializa a connection map
-      first_end_init.insert(std::make_pair(edge.get_end_2(), edge));
-      graph[edge.get_end_1()] = first_end_init;
+      first_end_init.insert(std::make_pair(edge.to(), edge));
+      graph[edge.from()] = first_end_init;
     } else {
       // the first edge is already in the graph so update (overwrite) with
       // second end
-      first_edge_end->second.insert(std::make_pair(edge.get_end_2(), edge));
+      first_edge_end->second.insert(std::make_pair(edge.to(), edge));
     }
     // update nodes
-    this->to_nodes.insert(edge.get_end_2());
+    this->to_nodes.insert(edge.to());
   }
 
-  void set_item_symmetric(Edge<Node> edge) {
-    set_item(edge);
-    set_item(edge.sym_reverse());
+  void add_symmetric_edge(Edge<Node> edge) {
+    add_edge(edge);
+    add_edge(edge.sym_reverse());
   }
 
   /**
@@ -93,7 +93,7 @@ public:
   explicit Graph(std::vector<Node> nodes) {
     for (auto end_1 : nodes) {
       for (auto end_2 : nodes) {
-        set_item(new Edge<Node>(end_1, end_2));
+        add_edge(new Edge<Node>(end_1, end_2));
       }
     }
   }
@@ -102,7 +102,7 @@ public:
                    std::function<Edge<Node>(Node, Node)> generator) {
     for (auto from_ : nodes) {
       for (auto to_ : nodes) {
-        set_item(generator(from_, to_));
+        add_edge(generator(from_, to_));
       }
     }
   }
@@ -115,7 +115,7 @@ public:
     for (auto from_ : this->graph) {
       for (auto to_ : from_.second) {
         if (filter(to_.second)) {
-          filtered_graph->set_item(to_.second);
+          filtered_graph->add_edge(to_.second);
         }
       }
     }
@@ -138,6 +138,7 @@ public:
       std::cout << std::endl;
       return connected_nodes->second;
     }
+    std::cout << "node is not connected" << std::endl; //  TODO: proper logging
     return {};
   }
 
@@ -194,6 +195,11 @@ public:
     out << "--" << std::endl;
     return out;
   }
+
+  /**
+   *  Dijkstra shortest path search implementation
+   *  returns path from  starting_node to final_node
+   * */
 
   std::vector<Node> dijkstra(Node starting_node_index, Node final_node_index) {
     std::set<Node> explored(
