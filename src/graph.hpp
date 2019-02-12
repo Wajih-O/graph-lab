@@ -133,7 +133,7 @@ public:
       // debug print
       std::cout << "source: " << source;
       for (auto node : connected_nodes->second) {
-        std::cout << " --> " << node.first << " (" << node.second << ")";
+        std::cout << " -> " << node.first << " (" << node.second << ")";
       }
       std::cout << std::endl;
       return connected_nodes->second;
