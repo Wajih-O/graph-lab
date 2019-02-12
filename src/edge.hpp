@@ -82,7 +82,7 @@ public:
   Edge(Node from_, Node to_)
       : enabled(false), distance(0.0), from_(from_), to_(to_) {}
 
-  Edge(Node from_, Node to_, bool _enabled, double _dist)
+  Edge(Node from_, Node to_, double _dist, bool _enabled=true)
       : enabled(_enabled), distance(_dist), from_(from_), to_(to_) {}
 
   bool collapsed() { return distance == 0.0; }

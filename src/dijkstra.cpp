@@ -30,19 +30,19 @@ void graph_example() {
 
   // Fill the graph https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm
 
-  graph->add_symmetric_edge(mylib::Edge<int>(1, 2, true, 7.));
-  graph->add_symmetric_edge(mylib::Edge<int>(1, 3, true, 9.));
-  graph->add_symmetric_edge(mylib::Edge<int>(1, 6, true, 14.));
+  graph->add_symmetric_edge(mylib::Edge<int>(1, 2, 7.));
+  graph->add_symmetric_edge(mylib::Edge<int>(1, 3, 9.));
+  graph->add_symmetric_edge(mylib::Edge<int>(1, 6, 14.));
 
-  graph->add_symmetric_edge(mylib::Edge<int>(2, 1, true, 7.));
-  graph->add_symmetric_edge(mylib::Edge<int>(2, 3, true, 10.));
-  graph->add_symmetric_edge(mylib::Edge<int>(2, 4, true, 15.));
+  graph->add_symmetric_edge(mylib::Edge<int>(2, 1, 7.));
+  graph->add_symmetric_edge(mylib::Edge<int>(2, 3, 10.));
+  graph->add_symmetric_edge(mylib::Edge<int>(2, 4, 15.));
 
-  graph->add_symmetric_edge(mylib::Edge<int>(3, 6, true, 2.));
-  graph->add_symmetric_edge(mylib::Edge<int>(3, 4, true, 6.));
+  graph->add_symmetric_edge(mylib::Edge<int>(3, 6, 2.));
+  graph->add_symmetric_edge(mylib::Edge<int>(3, 4, 6.));
 
-  graph->add_symmetric_edge(mylib::Edge<int>(4, 5, true, 6.));
-  graph->add_symmetric_edge(mylib::Edge<int>(5, 6, true, 9.));
+  graph->add_symmetric_edge(mylib::Edge<int>(4, 5, 6.));
+  graph->add_symmetric_edge(mylib::Edge<int>(5, 6, 9.));
 
   // std::cout << *graph << std::endl;
   // std::cout << "filter less than 10:" << std::endl
@@ -70,9 +70,9 @@ void graph_example() {
  */
  void lina_graph() {
    mylib::Graph<std::string> graph;
-   graph.add_symmetric_edge(mylib::Edge<std::string>("A", "B", true, 2.0));
-   graph.add_symmetric_edge(mylib::Edge<std::string>("B", "C", true, 3.0));
-   graph.add_symmetric_edge(mylib::Edge<std::string>("B", "D", true, 4.0));
+   graph.add_symmetric_edge(mylib::Edge<std::string>("A", "B", 2.0));
+   graph.add_symmetric_edge(mylib::Edge<std::string>("B", "C", 3.0));
+   graph.add_symmetric_edge(mylib::Edge<std::string>("B", "D", 4.0));
 
      std::cout << &graph << std::endl;
  }
@@ -84,12 +84,12 @@ void string_graph() {
 
   mylib::Graph<std::string> *graph = new mylib::Graph<std::string>();
   graph->add_symmetric_edge(
-      mylib::Edge<std::string>("node_0", "node_3", true, 50.));
+      mylib::Edge<std::string>("node_0", "node_3", 50.));
   graph->add_symmetric_edge(
-      mylib::Edge<std::string>("node_3", "n_5", true, 17.));
-  graph->add_symmetric_edge(mylib::Edge<std::string>("n_5", "n_2", true, 3.));
+      mylib::Edge<std::string>("node_3", "n_5", 17.));
+  graph->add_symmetric_edge(mylib::Edge<std::string>("n_5", "n_2", 3.));
   graph->add_symmetric_edge(
-      mylib::Edge<std::string>("node_3", "node_0", true, 9.));
+      mylib::Edge<std::string>("node_3", "node_0", 9.));
 
   // check path length
   std::cout << graph->get_path_length({"node_0", "node_3", "n_5", "n_2"})
