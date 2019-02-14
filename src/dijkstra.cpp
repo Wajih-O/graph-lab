@@ -1,3 +1,7 @@
+/**
+ * @author Wajih Ouertani
+ * @email wajih.ouertani@gmail.com
+ */
 #include "edge.hpp"
 #include "graph.hpp"
 #include "list.hpp"
@@ -48,12 +52,6 @@ void graph_example() {
   // std::cout << "filter less than 10:" << std::endl
   //           << *graph->filter(mylib::Edge<int>::less_than_filter(10));
 
-  // auto reachable_from_node_3 = graph->get_next_reachable(3);
-  // if (reachable_from_node_3) {
-  //   for (auto item : reachable_from_node_3.value()) {
-  //     std::cout << item.first << " edge ==" << item.second << std::endl;
-  //   }
-  // }
 
   // check path length
   // std::cout << graph->get_path_length({1, 2, 4, 5}) << std::endl;
@@ -95,7 +93,7 @@ void string_graph() {
   std::cout << graph->get_path_length({"node_0", "node_3", "n_5", "n_2"})
             << std::endl;
 
-  auto reachable_from_node_3 = graph->get_next_reachable("node_3");
+  auto reachable_from_node_3 = graph->neighbors("node_3");
   std::cout << *graph << std::endl;
 }
 
