@@ -6,7 +6,6 @@
 #ifndef MYLIB_GRAPH
 #define MYLIB_GRAPH
 
-#include <functional>
 #include <iostream>
 #include <unordered_map>
 #include <ostream>
@@ -17,6 +16,7 @@
 #include <queue>
 
 #include <boost/optional.hpp>
+
 #include "utils.hpp"
 #include "edge.hpp"
 
@@ -120,7 +120,7 @@ public:
   boost::optional<double> get_edge_value(Node from_, Node to_) {
     auto edge = get_edge(from_, to_);
     if (edge) {
-      return edge.get().get_distance(); // TODO refactor get_distance to get_value (more generic)
+      return edge.get().get_value();
     }
     return {};
   }
@@ -205,7 +205,7 @@ public:
       while (from < path.size() - 1) {
         auto edge_ = get_edge(path[from], path[from + 1]);
         if (edge_) {
-          length += edge_.get().get_distance();
+          length += edge_.get().get_value();
         } else {
           return -1; // as there is no path (disrupted/cut)
         }
@@ -240,7 +240,7 @@ public:
     for (auto from_ : g.graph) {
       out << from_.first;
       for (auto to_ : from_.second) {
-        out << " -> " << to_.first << "("<<to_.second.get_distance() << ")";
+        out << " -> " << to_.first << "("<<to_.second.get_value() << ")";
       }
       out << std::endl;
     }

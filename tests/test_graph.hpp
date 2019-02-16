@@ -14,7 +14,7 @@ TEST(Graph, should_return_direct_reachable_nodes) {
     auto next = graph.neighbors(1);
     if (next) {
         for (auto node: next.get()) {
-            nodes.insert(std::make_pair(node.first, node.second.get_distance()));
+            nodes.insert(std::make_pair(node.first, node.second.get_value()));
         }
     }
     ASSERT_THAT(nodes, testing::UnorderedElementsAre(testing::Pair(0, 50.), testing::Pair(2,17.)));
