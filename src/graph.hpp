@@ -150,7 +150,7 @@ public:
       // the first edge end is not found (not connected to any of the nodes in
       // the graph)
       std::unordered_map<Node, Edge<Node>>
-          first_end_init; // initializa a connection map
+          first_end_init; // initialize a connection map
       first_end_init.insert(std::make_pair(edge.to(), edge));
       graph[edge.from()] = first_end_init;
     } else {
@@ -292,6 +292,51 @@ public:
     }
     return {};
   }
+
+/**
+ * PRIM MST implementation
+ */
+ std::vector<mylib::Edge<Node>> mst_prim(Node starting_node) {
+    std::set<Node> closed({starting_node}); // list of explored nodes (closed set)
+    std::vector<mylib::Edge<Node>> mst;
+    auto compare = [] (mylib::Edge<Node> left, mylib::Edge<Node> right) {
+      return left.get_value() > right.get_value();
+    };
+
+
+    std::priority_queue<mylib::Edge<Node>, std::vector<mylib::Edge<Node>>, decltype(compare)> edges(compare); // candidate edges
+    // initialize the edges priority queue with all the neighbors of the starting_node
+    // should then be updated for all nodes in the closed/explored set add all the paths if the to_ end is not yet in the closed set
+    auto neighbors = this->neighbors(starting_node);
+    if (neighbors) {
+    for (auto edge: neighbors.get()) {
+      if (closed.find(edge.second.to()) == closed.end()) {
+        edges.push(edge.second); // only add edge if edge.to() end is not in the closed set
+      }
+      }
+    }
+
+    while(edges.size() > 0) {
+    // (we assume) that the egdges priority queue already filtered no loops
+    auto candidate_edge = edges.top();
+     if (closed.find(candidate_edge.to()) == closed.end()) {
+      mst.push_back(candidate_edge);
+      // add all the edges that starts from the candidate edges to the priority queue
+      neighbors = this->neighbors(candidate_edge.to());
+      if (neighbors) {
+      for (auto edge: neighbors.get()) {
+        if (closed.find(edge.second.to()) == closed.end()) {
+          edges.push(edge.second); // only add edge if edge.to() end is not in the closed set
+          }
+        }
+      }
+      closed.insert(candidate_edge.to()); // insert the edge-end to closed as it is explored
+     }
+     edges.pop(); // remove the edge from priority queue
+    }
+  return mst;
+  }
+
 };
 } // namespace mylib
 #endif
