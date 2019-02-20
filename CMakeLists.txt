@@ -44,7 +44,7 @@ link_directories(/usr/lib/x86_64-linux-gnu ${DEPENDENCIES_DIR}/lib)
 
 # create test executable
 add_executable(dijkstra src/dijkstra.cpp ${SRC_FILES})
-
+add_executable(mst src/mst.cpp ${SRC_FILES})
 
 # Testing libraries
 find_package(fakeit REQUIRED)
