@@ -11,6 +11,7 @@
 #include "edge.hpp"
 #include "graph.hpp"
 
+
 /**
  * Graph example from wikipedia/disjkstra
  * https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm
@@ -39,6 +40,14 @@ void graph_example_wikipedia() {
     std::cout << *item << "-->" ;
   }
   std::cout << *(shortest_path.end()-1) << std::endl;
+
+  for (auto node: graph->mst_prim(1)) {
+    std::cout << "mst: "<< node << std::endl;
+  }
+for (auto node: graph->mst_prim(2)) {
+    std::cout << "mst: "<< node << std::endl;
+  }
+
   delete(graph);
 }
 
