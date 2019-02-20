@@ -7,18 +7,18 @@
 #define MYLIB_GRAPH
 
 #include <iostream>
-#include <unordered_map>
 #include <ostream>
+#include <queue>
 #include <set>
 #include <stdexcept>
+#include <unordered_map>
 #include <utility>
 #include <vector>
-#include <queue>
 
 #include <boost/optional.hpp>
 
-#include "utils.hpp"
 #include "edge.hpp"
+#include "utils.hpp"
 
 namespace mylib {
 
@@ -30,7 +30,6 @@ protected:
 
 public:
   static constexpr const char *INFO = "mylib::Graph";
-
 
   /**
    * Constructors
@@ -50,10 +49,12 @@ public:
     }
   }
 
-  /** a Constructor using Node vector a generator of edges as a function of (Node from_, Node to_)
+  /** a Constructor using Node vector a generator of edges as a function of
+   * (Node from_, Node to_)
    */
   explicit Graph(std::vector<Node> nodes,
-                   std::function<Edge<Node>(Node, Node)> generator, double density=1) {
+                 std::function<Edge<Node>(Node, Node)> generator,
+                 double density = 1) {
     for (auto from_ : nodes) {
       for (auto to_ : nodes) {
         // generate edge accordingly with density parameter
@@ -68,24 +69,22 @@ public:
   return size or more precisely the number of edges
   */
   unsigned int get_edges_number() const {
-    unsigned int size=0;
-    for (auto it=graph.begin(); it != graph.end(); it++) {
+    unsigned int size = 0;
+    for (auto it = graph.begin(); it != graph.end(); it++) {
       size += it->second.size();
     }
     return size;
   }
-  unsigned int E() const {
-    return this->get_edges_number();
-  }
+  unsigned int E() const { return this->get_edges_number(); }
 
   /** return vertices/nodes number
    */
 
   unsigned int get_nodes_number() const {
     std::set<Node> nodes;
-    for (auto it=graph.begin(); it != graph.end(); it++) {
+    for (auto it = graph.begin(); it != graph.end(); it++) {
       nodes.insert(it->first);
-      for (auto node:it->second) {
+      for (auto node : it->second) {
         nodes.insert(node.first);
       }
     }
@@ -128,10 +127,10 @@ public:
   /**
    * set edge value (if edge exists/already created)
    * does not create the edge if  does not exist
-  */
+   */
   boost::optional<bool> set_edge_value(Node from_, Node to_, double value) {
 
-  auto source_edges = graph.find(from_);
+    auto source_edges = graph.find(from_);
     if (source_edges != graph.end()) {
       auto source_dest_edge = source_edges->second.find(to_);
       if (source_dest_edge != source_edges->second.end()) {
@@ -141,7 +140,6 @@ public:
     return {};
   }
 
-
   void add_edge(Edge<Node> edge) {
     // check the first end
     auto first_edge_end =
@@ -150,7 +148,7 @@ public:
       // the first edge end is not found (not connected to any of the nodes in
       // the graph)
       std::unordered_map<Node, Edge<Node>>
-          first_end_init; // initializa a connection map
+          first_end_init; // initialize a connection map
       first_end_init.insert(std::make_pair(edge.to(), edge));
       graph[edge.from()] = first_end_init;
     } else {
@@ -185,8 +183,7 @@ public:
   /**
    * return directly reachable nodes (with defined direct edge)
    */
-  boost::optional<std::unordered_map<Node, Edge<Node>>>
-  neighbors(Node source) {
+  boost::optional<std::unordered_map<Node, Edge<Node>>> neighbors(Node source) {
     auto connected_nodes = graph.find(source);
     if (connected_nodes != graph.end()) {
       return connected_nodes->second;
@@ -240,7 +237,7 @@ public:
     for (auto from_ : g.graph) {
       out << from_.first;
       for (auto to_ : from_.second) {
-        out << " -> " << to_.first << "("<<to_.second.get_value() << ")";
+        out << " -> " << to_.first << "(" << to_.second.get_value() << ")";
       }
       out << std::endl;
     }
@@ -253,23 +250,27 @@ public:
    *  returns path from  starting_node to final_node
    * */
 
-  std::vector<Node> dijkstra(Node starting_node_index, Node final_node_index) {
+  std::vector<Node> dijkstra(Node starting_node, Node final_node) {
     std::set<Node> explored(
-        {starting_node_index}); // list of explored nodes (closed set)
+        {starting_node}); // list of explored nodes (closed set)
 
-    auto compare = [] (std::pair<std::vector<Node>, double> left, std::pair<std::vector<Node>, double> right) {
+    auto compare = [](std::pair<std::vector<Node>, double> left,
+                      std::pair<std::vector<Node>, double> right) {
       return left.second > right.second;
     };
 
-    std::priority_queue<std::pair<std::vector<Node>, double>, std::vector<std::pair<std::vector<Node>, double>>,
-                      decltype(compare)> paths(compare);
-    paths.push(std::make_pair<std::vector<Node>, double>({starting_node_index}, 0.)); // paths to explore (extend)
+    std::priority_queue<std::pair<std::vector<Node>, double>,
+                        std::vector<std::pair<std::vector<Node>, double>>,
+                        decltype(compare)>
+        paths(compare);
+    paths.push(std::make_pair<std::vector<Node>, double>(
+        {starting_node}, 0.)); // paths to explore (extend)
 
     while (paths.size() > 0) {
       auto shortest_path = paths.top();
       paths.pop();
 
-      if (shortest_path.first.back() == final_node_index) {
+      if (shortest_path.first.back() == final_node) {
         // found shortest path to destination (final node_index)
         return shortest_path.first;
       }
@@ -283,7 +284,8 @@ public:
             auto path_to_extend = shortest_path.first;
             path_to_extend.push_back(node.first);
             // update the paths priority queue
-            paths.push(std::make_pair(path_to_extend, get_path_length(path_to_extend)));
+            paths.push(std::make_pair(path_to_extend,
+                                      get_path_length(path_to_extend)));
           }
         }
       }
