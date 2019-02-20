@@ -41,10 +41,10 @@ void graph_example_wikipedia() {
   }
   std::cout << *(shortest_path.end()-1) << std::endl;
 
-  for (auto node: graph->mst_prim(1)) {
+  for (auto node: graph->mst_prim(1).first) {
     std::cout << "mst: "<< node << std::endl;
   }
-for (auto node: graph->mst_prim(2)) {
+for (auto node: graph->mst_prim(2).first) {
     std::cout << "mst: "<< node << std::endl;
   }
 

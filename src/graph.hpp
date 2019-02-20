@@ -65,6 +65,16 @@ public:
     }
   }
 
+  explicit Graph(std::istream & data_fs) {
+    int nodes_nbr; // ignored in our implementation we only care about edges
+    data_fs >> nodes_nbr;
+    Node tmp_from, tmp_to;
+    double value;
+    while (data_fs >> tmp_from >> tmp_to >> value) {
+      this->add_edge(mylib::Edge<Node>(static_cast<Node>(tmp_from), static_cast<Node>(tmp_to), value));
+    }
+  }
+
   /**
   return size or more precisely the number of edges
   */
@@ -298,13 +308,16 @@ public:
 /**
  * PRIM MST implementation
  */
- std::vector<mylib::Edge<Node>> mst_prim(Node starting_node) {
+ std::pair<std::vector<mylib::Edge<Node>>, double> mst_prim(Node starting_node) {
     std::set<Node> closed({starting_node}); // list of explored nodes (closed set)
     std::vector<mylib::Edge<Node>> mst;
+    double cost; // mst cost
+    /**
+     * a helper compare method to compare priority queue elements
+     */
     auto compare = [] (mylib::Edge<Node> left, mylib::Edge<Node> right) {
       return left.get_value() > right.get_value();
     };
-
 
     std::priority_queue<mylib::Edge<Node>, std::vector<mylib::Edge<Node>>, decltype(compare)> edges(compare); // candidate edges
     // initialize the edges priority queue with all the neighbors of the starting_node
@@ -323,6 +336,7 @@ public:
     auto candidate_edge = edges.top();
      if (closed.find(candidate_edge.to()) == closed.end()) {
       mst.push_back(candidate_edge);
+      cost += candidate_edge.get_value();
       // add all the edges that starts from the candidate edges to the priority queue
       neighbors = this->neighbors(candidate_edge.to());
       if (neighbors) {
@@ -336,7 +350,7 @@ public:
      }
      edges.pop(); // remove the edge from priority queue
     }
-  return mst;
+  return std::make_pair(mst, cost);
   }
 
 };

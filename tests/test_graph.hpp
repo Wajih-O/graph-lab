@@ -126,18 +126,19 @@ TEST(Graph, should_dijkstra_work_properly_on_trivial_graph) {
 }
 
 /**
- * Test trivial mst
+ * Simple mst test
  */
 
-TEST(Graph, should_works_properly_on_a_fully_connected_and_same_edge_value) {
+TEST(Graph, should_works_properly_on_a_simple_graph) {
     std::vector<int> nodes{0, 1, 2};
     mylib::Graph<int> graph(nodes, mylib::Edge<int>::generate(1., 1.), 1.);
     graph.add_edge(mylib::Edge<int>(2, 3, 4.));
     auto prim_0 = graph.mst_prim(0);
-    ASSERT_EQ(*(prim_0.end()-1), mylib::Edge<int>(2, 3, 4.));
+    ASSERT_EQ(*(prim_0.first.end()-1), mylib::Edge<int>(2, 3, 4.));
+    ASSERT_EQ(prim_0.second, 6);
 }
 
 
 // TODO: Test random generation of graph given a set of nodes, values range and a density param
 // TODO: Test shortest path index from a vector of path
-// TODO: Test edge filter
+// TODO: Test edges filter
