@@ -111,11 +111,33 @@ TEST(Graph, should_dijkstra_compute_the_shortest_path) {
   ASSERT_THAT(graph.dijkstra(1, 5), testing::ElementsAre(1, 3, 6, 5));
 
 }
+/**
+ * Test trivial Dijkstra
+ */
+
+TEST(Graph, should_dijkstra_work_properly_on_trivial_graph) {
+    std::vector<int> nodes{0, 1, 2};
+    mylib::Graph<int> graph(nodes, mylib::Edge<int>::generate(1., 1.), 1.);
+    for(auto i=0; i<nodes.size()-1; i++) {
+        for(auto j=i+1; j<nodes.size(); j++) {
+            ASSERT_THAT(graph.dijkstra(i, j), testing::ElementsAre(i, j));
+        }
+    }
+}
+
+/**
+ * Test trivial mst
+ */
+
+TEST(Graph, should_works_properly_on_a_fully_connected_and_same_edge_value) {
+    std::vector<int> nodes{0, 1, 2};
+    mylib::Graph<int> graph(nodes, mylib::Edge<int>::generate(1., 1.), 1.);
+    graph.add_edge(mylib::Edge<int>(2, 3, 4.));
+    auto prim_0 = graph.mst_prim(0);
+    ASSERT_EQ(*(prim_0.end()-1), mylib::Edge<int>(2, 3, 4.));
+}
 
 
-// TODO: test random generation of graph given a set of nodes, values range and a density param
-
-
+// TODO: Test random generation of graph given a set of nodes, values range and a density param
 // TODO: Test shortest path index from a vector of path
-
-// TODO Test edge filter
+// TODO: Test edge filter
