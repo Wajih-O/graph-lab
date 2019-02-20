@@ -34,8 +34,8 @@ public:
    * get edge status
    */
   bool is_enabled() const { return enabled; }
-  Node from() { return from_; }
-  Node to() { return to_; }
+  Node from() const { return this->from_; }
+  Node to() const { return this->to_; }
 
   /**
    * Randomly generate edges
@@ -81,15 +81,28 @@ public:
 
   bool collapsed() { return value == 0.0; }
 
+
+  bool &operator==(const Edge &other){
+    return ((this->from() == other.from()) && (this->to() == other.to()) && (this->get_value() == other.get_value()));
+  }
+
+
   friend std::ostream &operator<<(std::ostream &out, const Edge &e) {
     if (e.is_enabled()) {
-      out << e.get_value(); //  << std::setw(3) << std::setprecision(3) <<
+      out << e.from() << "->" << e.to() << "(" << e.get_value() << ")"; //  << std::setw(3) << std::setprecision(3) <<
                                //  e.get_value();
     } else {
-      out << "."; // std::setw(3) << std::setprecision(4) << ".";
+      out << ".";
     }
     return out;
   }
 };
+
+
+template <class Node>
+  static bool operator==(const Edge<Node> &e1, const Edge<Node> &e2){
+    return ((e1.from() == e2.from()) && (e1.to() == e2.to()) && (e1.get_value() == e2.get_value()));
+  }
+
 } // namespace mylib
 #endif
