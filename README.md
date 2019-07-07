@@ -4,11 +4,11 @@ A C++ graph algorithms lab. Implemented algorithms are:
 
 ## Dijkstra
 
- An algorithm conceived by computer scientist Edsger W. Dijkstra in 1956 for finding the shortest paths between nodes in a graph check https://en.wikipedia.org/wiki/Dijkstra's_algorithm for more details. The dijkstra example program uses the wikipedia graph example as a demo.
+An algorithm conceived by computer scientist Edsger W. Dijkstra in 1956 for finding the shortest paths between nodes in a graph check https://en.wikipedia.org/wiki/Dijkstra's_algorithm for more details. The dijkstra example program uses the wikipedia graph example as a demo.
 
 ## MST
 
-A minimum spanning tree (MST) or minimum weight spanning tree is a subset of the edges of a connected,edge-weighted undirected graph that connects all the vertices together, without any cycles and with the minimum possible total edge weight (src wikipedia https://en.wikipedia.org/wiki/Minimum_spanning_tree)
+A spanning tree (ST) is a subset of edges of connected edge-weighted undirected graph that connects all the vertices together, without any cycles (and then could be reshaped as a tree). A minimum spanning tree (MST) is a/the spanning tree (all original graph vertives in a cycles free graph) having the minimum sum of the edges-weights among all the spanning trees (check https://en.wikipedia.org/wiki/Minimum_spanning_tree for more reading/details.
 
 The variant implemented here is Prim's algorithm https://en.wikipedia.org/wiki/Prim%27s_algorithm.
 
