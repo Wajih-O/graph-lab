@@ -16,6 +16,7 @@
 #include <vector>
 
 #include <boost/optional.hpp>
+#include <boost/functional/hash.hpp>
 
 #include "edge.hpp"
 #include "utils.hpp"
@@ -24,7 +25,7 @@ namespace mylib {
 
 template <class Node> class Graph {
 protected:
-  std::unordered_map<Node, std::unordered_map<Node, Edge<Node>>> graph;
+  std::unordered_map<Node, std::unordered_map<Node, Edge<Node>, boost::hash<Node>>, boost::hash<Node>> graph;
   std::set<Node> to_nodes; // storing edges end (to(s)) nodes (as from could be
                            // collected from graph)
 
@@ -157,7 +158,7 @@ public:
     if (first_edge_end == graph.end()) {
       // the first edge end is not found (not connected to any of the nodes in
       // the graph)
-      std::unordered_map<Node, Edge<Node>>
+      std::unordered_map<Node, Edge<Node>, boost::hash<Node>>
           first_end_init; // initialize a connection map
       first_end_init.insert(std::make_pair(edge.to(), edge));
       graph[edge.from()] = first_end_init;
@@ -193,7 +194,7 @@ public:
   /**
    * return directly reachable nodes (with defined direct edge)
    */
-  boost::optional<std::unordered_map<Node, Edge<Node>>> neighbors(Node source) {
+  boost::optional<std::unordered_map<Node, Edge<Node>, boost::hash<Node>>> neighbors(Node source) {
     auto connected_nodes = graph.find(source);
     if (connected_nodes != graph.end()) {
       return connected_nodes->second;

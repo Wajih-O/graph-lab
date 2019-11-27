@@ -4,6 +4,8 @@
 #include "tests/test_edge.hpp"
 #include "tests/test_graph.hpp"
 
+#include "tests/test_hex.hpp"
+
 boost::optional<int> f(int x){
   if (x>0) {
     return x;
