@@ -69,8 +69,7 @@ public:
    * to_ to from_
    */
   Edge<Node> sym_reverse() {
-    return  Edge<Node>(this->to_, this->from_, this->enabled,
-                          this->value);
+    return  Edge<Node>(this->to_, this->from_, this->value,  this->enabled);
   }
 
   Edge(Node from_, Node to_)
