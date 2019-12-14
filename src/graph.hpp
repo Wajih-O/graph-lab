@@ -16,6 +16,7 @@
 #include <vector>
 
 #include <boost/optional.hpp>
+#include <boost/optional/optional_io.hpp>
 #include <boost/functional/hash.hpp>
 
 #include "edge.hpp"
@@ -238,7 +239,7 @@ public:
       }
       return shortest_index;
     }
-    throw std::runtime_error("paths list/vector is emtpty");
+    throw std::runtime_error("paths list/vector is empty");
   }
 
   friend std::ostream &operator<<(std::ostream &out, const Graph &g) {

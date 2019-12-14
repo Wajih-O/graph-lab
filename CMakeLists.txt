@@ -36,6 +36,7 @@ set(SRC_FILES
     src/list.hpp
     src/graph.hpp
     src/edge.hpp
+    src/hex.hpp
     )
 
 file (GLOB_RECURSE UNIT_TESTS_SRC
