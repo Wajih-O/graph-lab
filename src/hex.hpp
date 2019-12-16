@@ -1,4 +1,4 @@
-/* @modify date 2019-12-01 17:04:21
+/* @modify date 2019-12-16 02:15:50
  * @author Wajih Ouertani
  * @email wajih.ouertani@gmail.com
  */
@@ -42,63 +42,122 @@ enum class GAME_EDGE { EAST, WEST, NORTH, SOUTH };
 // TODO: implement CELL (as abstract class) /EDGE_CELL/ GRID_CELL
 
 class BaseCell {
-  public:
-   virtual bool operator == (const BaseCell &bc) =0;
-
+public:
+  virtual bool operator==(const BaseCell &bc) = 0;
 };
 
 /*
-* A special cell type where every cell edge Hex cell on the board should be attached to
-* we need one for each of the edges namely: WEST, NORTH, EAST, SOUTH they are special
-* Cells/nodes to test if a player has connected the north to south, or the west to
-*/
-class FunnelCell: public BaseCell {
+ * A special cell type where every cell edge Hex cell on the board should be
+ * attached to we need one for each of the edges namely: WEST, NORTH, EAST,
+ * SOUTH they are special Cells/nodes to test if a player has connected the
+ * north to south, or the west to
+ */
+class FunnelCell : public BaseCell {
 
 public:
   FunnelCell() {}
-   virtual bool operator == (const BaseCell& other) {return false;}
+  virtual bool operator==(const BaseCell &other) { return false; }
+   friend std::ostream &operator<<(std::ostream &out, const FunnelCell &cell) {
+    out <<"(Funnel)"  << std::endl;
+    return out ;
+  }
 
 };
 
-template <class T>
-class Cell: public BaseCell {
-  public:
-    Cell(std::pair<std::size_t, std::size_t> coordinates) : coordinates(coordinates){}
-    Cell(size_t first, size_t second) { coordinates = std::make_pair(first, second);}
+template <class T> class Cell : public BaseCell {
+public:
+  Cell(std::pair<std::size_t, std::size_t> coordinates)
+      : coordinates(coordinates) {}
+  Cell(size_t first, size_t second) {
+    coordinates = std::make_pair(first, second);
+  }
 
-    std::pair<std::size_t, std::size_t> get_coordinate() const {return coordinates;}
+  std::pair<std::size_t, std::size_t> get_coordinate() const {
+    return coordinates;
+  }
 
-    size_t first() const {return this->coordinates.first;}
-    size_t second() const {return this->coordinates.second;}
-    size_t row() { return this->first();}
-    size_t col() { return this->second();}
+  size_t first() const { return this->coordinates.first; }
+  size_t second() const { return this->coordinates.second; }
+  size_t row() { return this->first(); }
+  size_t col() { return this->second(); }
 
-    virtual bool operator == (const Cell& other) {
-      return ((this->first() == other.first()) && (this->second() == other.second()));
-    }
-    virtual bool operator == (const BaseCell& other) {return false;}
-  private:
-    T value;
-    std::pair<size_t, size_t> coordinates;
+  virtual bool operator==(const Cell &other) {
+    return ((this->first() == other.first()) &&
+            (this->second() == other.second()));
+  }
+  virtual bool operator==(const BaseCell &other) { return false; }
 
+  friend std::ostream &operator<<(std::ostream &out, const Cell<T> &cell) {
+    out <<"(" << cell.first() << "," << cell.second() << ")"  << std::endl;
+    return out;
+  }
+
+  friend std::ostream &operator<<(std::ostream &out, const std::shared_ptr<Cell<T>> &cell) {
+    out <<"(" << cell->first() << "," << cell->second() << ")"  << std::endl;
+    return out;
+  }
+
+private:
+  T value;
+  std::pair<size_t, size_t> coordinates;
 };
 
 
 /*
-* A Class encapsulating player data hex cell graph
-*/
+ * A Class encapsulating player data hex cell graph
+ */
 class Player {
-  public:
-    Player() {
-       new Graph<std::shared_ptr<BaseCell>>;
-    }
-  private:
-    std::unique_ptr<Graph<std::shared_ptr<BaseCell>>> graph;
+public:
+  Player() {
+    graph =std::unique_ptr<Graph<std::shared_ptr<BaseCell>>>(new Graph<std::shared_ptr<BaseCell>>());
+    // Initialize special to be connected to the board
+    south_funnel_cell = std::make_shared<FunnelCell>(FunnelCell());
+    north_funnel_cell = std::make_shared<FunnelCell>(FunnelCell());
+    east_funnel_cell = std::make_shared<FunnelCell>(FunnelCell());
+    west_funnel_cell = std::make_shared<FunnelCell>(FunnelCell());
+  }
+
+  std::unique_ptr<Graph<std::shared_ptr<BaseCell>>>& get_graph() { return graph; }
+
+   // Funnel cells accessors
+   std::shared_ptr<FunnelCell> get_south_funnel_cell() const {return south_funnel_cell;}
+   std::shared_ptr<FunnelCell> get_north_funnel_cell() const {return north_funnel_cell;}
+   std::shared_ptr<FunnelCell> get_east_funnel_cell() const {return east_funnel_cell;}
+   std::shared_ptr<FunnelCell> get_west_funnel_cell() const {return west_funnel_cell;}
+
+
+  // the edge should not be symmetric here otherwise all the edges will be mutually connected with (0) cost
+  void connect_west(std::shared_ptr<BaseCell> edge_cell) {
+    graph->add_edge(
+        Edge<std::shared_ptr<BaseCell>>( this->west_funnel_cell, edge_cell, 0));
+  }
+
+  void connect_east(std::shared_ptr<BaseCell> edge_cell) {
+    graph->add_edge(
+        Edge<std::shared_ptr<BaseCell>>(edge_cell, this->east_funnel_cell, 0));
+  }
+
+  void connect_north(std::shared_ptr<BaseCell> edge_cell) {
+    graph->add_edge(
+        Edge<std::shared_ptr<BaseCell>>(this->north_funnel_cell, edge_cell,  0));
+  }
+
+  void connect_south(std::shared_ptr<BaseCell> edge_cell) {
+    graph->add_edge(
+        Edge<std::shared_ptr<BaseCell>>(edge_cell, this->south_funnel_cell, 0));
+  }
+
+
+private:
+
+  std::unique_ptr<Graph<std::shared_ptr<BaseCell>>> graph;
+  std::shared_ptr<FunnelCell> south_funnel_cell;
+  std::shared_ptr<FunnelCell> north_funnel_cell;
+  std::shared_ptr<FunnelCell> east_funnel_cell;
+  std::shared_ptr<FunnelCell> west_funnel_cell;
 };
 
-
-template <class T>
-class HexBoard {
+template <class T> class HexBoard {
 
   // A Hex board is represented by a grid of cell
   // as well as a vector of graphs for generality (might support multi-players >
@@ -109,35 +168,65 @@ class HexBoard {
       board; // should be a board of unique pointers to ensure that every cell
              // is assigned to a unique graph
 
-  std::vector<std::unique_ptr<Graph<std::shared_ptr<BaseCell>>>>
-      players_graphs; // a graph for each player
-
-  std::unordered_map<std::pair<std::size_t, std::size_t>, std::size_t, boost::hash<std::pair<std::size_t, std::size_t>>>
+  std::unordered_map<std::pair<std::size_t, std::size_t>, std::size_t,
+                     boost::hash<std::pair<std::size_t, std::size_t>>>
       cell_to_player; // a map assigning each board cell to the player who has
                       // collected/marked it
   // Player graphs could be dynamically built from this map (on demand)
 
+
+ /*
+   * Connect a player special edge/funnel cell to the board edges
+   * @param player_index: player index
+   * @return: player graph for the relative player index
+   */
+
+  bool connect_east_funnel(Player& player) {
+      for (auto row : board) {
+       player.connect_east(row.front());
+      }
+  }
+
+ bool connect_west_funnel(Player& player) {
+      for (auto row : board) {
+       player.connect_west(row.back());
+      }
+  }
+
+  bool connect_north_funnel(Player& player) {
+      for (auto cell: board.front()) {
+       player.connect_north(cell);
+      }
+  }
+
+ bool connect_south_funnel(Player& player) {
+      for (auto cell : board.back()) {
+       player.connect_south(cell);
+      }
+  }
+
 public:
+ std::vector<Player> players;
   HexBoard(std::size_t x_size, std::size_t y_size, std::size_t players_nbr = 2)
-      : x_size(x_size), y_size(y_size){
-    board = std::vector<std::vector<std::shared_ptr<Cell<T>>>>(x_size, std::vector<std::shared_ptr<Cell<T>>>(y_size, nullptr));
-    for (auto i=0; i<x_size; i++) {
-      for (auto j=0; j<y_size; j++) {
-        board[i][j] = std::make_shared<Cell<T>>( Cell<T>(i, j));
+      : x_size(x_size), y_size(y_size) {
+    board = std::vector<std::vector<std::shared_ptr<Cell<T>>>>(
+        x_size, std::vector<std::shared_ptr<Cell<T>>>(y_size, nullptr));
+    for (auto i = 0; i < x_size; i++) {
+      for (auto j = 0; j < y_size; j++) {
+        board[i][j] = std::make_shared<Cell<T>>(Cell<T>(i, j));
       }
     }
-    // Initializa player graphs
-    players_graphs.reserve(players_nbr);
-    for (int i = 0; i < players_nbr; i++) {
-      players_graphs.emplace_back(
-          new Graph<std::shared_ptr<BaseCell>>);
+    for (auto i = 0; i < players_nbr; i++) {
+      players.push_back(Player());
+      // Connect player funnel/special edge cells to the board
+      connect_east_funnel(players.back());
+      connect_west_funnel(players.back());
+      connect_north_funnel(players.back());
+      connect_south_funnel(players.back());
     }
   }
 
-  std::size_t players_nbr() {
-    return players_graphs.size();
-  }
-
+  std::size_t players_nbr() { return players.size(); }
 
   /*
   * Helper methods to get neighbors of a cell (C) in East (E), west (W), North,
@@ -168,29 +257,33 @@ public:
   limits are not reached (the neighbor is within the grid)
   */
 
- boost::optional<std::pair<std::size_t, std::size_t>>
+  boost::optional<std::pair<std::size_t, std::size_t>>
   grid_neighbor(Cell<T> cell, HEX_DIRECTION direction) {
     boost::optional<std::pair<std::size_t, std::size_t>> neighbor = {};
     switch (direction) {
     case (HEX_DIRECTION::EAST):
-      neighbor = within_the_board_pos(std::make_pair(cell.first(), cell.second() + 1));
+      neighbor =
+          within_the_board_pos(std::make_pair(cell.first(), cell.second() + 1));
       break;
     case (HEX_DIRECTION::WEST):
-      neighbor = within_the_board_pos(std::make_pair(cell.first(), cell.second() - 1));
+      neighbor =
+          within_the_board_pos(std::make_pair(cell.first(), cell.second() - 1));
       break;
     case (HEX_DIRECTION::NORTH):
-      neighbor = within_the_board_pos(std::make_pair(cell.first() - 1, cell.second()));
+      neighbor =
+          within_the_board_pos(std::make_pair(cell.first() - 1, cell.second()));
       break;
     case (HEX_DIRECTION::SOUTH):
-      neighbor = within_the_board_pos(std::make_pair(cell.first() + 1, cell.second()));
+      neighbor =
+          within_the_board_pos(std::make_pair(cell.first() + 1, cell.second()));
       break;
     case (HEX_DIRECTION::NORTH_EAST):
-      neighbor =
-          within_the_board_pos(std::make_pair(cell.first() - 1, cell.second() + 1));
+      neighbor = within_the_board_pos(
+          std::make_pair(cell.first() - 1, cell.second() + 1));
       break;
     case (HEX_DIRECTION::SOUTH_WEST):
-      neighbor =
-          within_the_board_pos(std::make_pair(cell.first() + 1, cell.second() - 1));
+      neighbor = within_the_board_pos(
+          std::make_pair(cell.first() + 1, cell.second() - 1));
       break;
     }
     return neighbor;
@@ -243,15 +336,15 @@ public:
     return {};
   }
 
-
   /*
-   * lookup for a cell int the cell to player map and return player index (if it exists)
+   * lookup for a cell int the cell to player map and return player index (if it
+   * exists)
    * @param cell: a cell location in the grid (cell) as std::pair<std::size_t,
    * std::size_t>
    * @return: an optional player index as std::pair<std::size_t, std::size_t>
    */
   boost::optional<std::size_t>
-  get_player(std::pair<std::size_t, std::size_t> cell) {
+  get_cell_player(std::pair<std::size_t, std::size_t> cell) {
     auto iter = cell_to_player.find(cell);
     if (iter != cell_to_player.end()) {
       return iter->second;
@@ -265,35 +358,21 @@ public:
    * @return: player graph for the relative player index
    */
 
-  boost::optional<std::unique_ptr<Graph<std::shared_ptr<mylib::BaseCell>>> &>
-  get_player_graph(std::size_t player_index) {
-    if (player_index > players_graphs.size())
+  boost::optional<Player> get_player(std::size_t player_index) {
+    if (player_index > players_nbr())
       return {};
-    return players_graphs[player_index];
+    return players.at(player_index);
   }
 
 
-  bool add_east_cell_to_player(std::shared_ptr<BaseCell> cell, std::size_t player_index){
-    if (player_index < players_nbr()) {
-      for (auto row: board) {
-        auto edge_cell = row.front();
-        // Connect the cell gived in param to last cell on each row (equivalent to connecting it to the east edge)
-        auto edge = mylib::Edge<std::shared_ptr<BaseCell>>(cell, edge_cell, 0);
-        players_graphs[player_index]->add_symmetric_edge(edge);
-      }
-     }
+boost::optional<std::unique_ptr<Graph<std::shared_ptr<BaseCell>>>&> get_player_graph(std::size_t player_index) {
+    if (player_index > players_nbr())
+      return {};
+    return players.at(player_index).get_graph();
   }
 
-  bool add_west_cell_to_player(std::shared_ptr<BaseCell> cell, std::size_t player_index){
-    if (player_index < players_nbr()) {
-      for (auto row: board) {
-        auto edge_cell = row.back();
-        // Connect the cell gived in param to last cell on each row (equivalent to connecting it to the west edge)
-        auto edge = mylib::Edge<std::shared_ptr<BaseCell>>(edge_cell, cell, 0);
-        players_graphs[player_index]->add_symmetric_edge(edge);
-      }
-     }
-  }
+
+
 
 
   /*
@@ -310,15 +389,17 @@ public:
     // Check if the player index is valid, the cell is within the grid and not
     // already assigned to another player.
     if ((is_within_the_board(cell_pos)) && (player_index < players_nbr())) {
-      // check if the cell is assined to another player
+      // check if the cell is assigned to another player
       if (cell_to_player.find(cell_pos) == cell_to_player.end()) {
         cell_to_player[cell_pos] = player_index;
         // maintain/build the edges of the player graph after adding the cell
         for (auto neighbor : all_neighbors(cell_pos)) {
-          if ((get_player(neighbor) == player_index)) {
+          if ((get_cell_player(neighbor) == player_index)) {
             // has to be a symmetric edge
-            players_graphs[player_index]->add_symmetric_edge(
-                mylib::Edge<std::shared_ptr<BaseCell>>(within_the_board(neighbor).get(), within_the_board(cell_pos).get(), 1));
+            players[player_index].get_graph()->add_symmetric_edge(
+                Edge<std::shared_ptr<BaseCell>>(
+                    within_the_board(neighbor).get(),
+                    within_the_board(cell_pos).get(), 1));
           }
         }
         return true;
