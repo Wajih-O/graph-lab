@@ -2,7 +2,7 @@
  * @author Wajih Ouertani
  * @email wajih.ouertani@gmail.com
  * @create date 2020-04-05 02:49:39
- * @modify date 2020-04-05 03:44:02
+ * @modify date 2020-04-05 04:37:16
  */
 
 #ifndef MYLIB_HEX_PLAYER
@@ -30,7 +30,7 @@ namespace mylib {
 class Player {
 public:
   Player() {
-    graph =std::unique_ptr<Graph<std::shared_ptr<BaseCell>>>(new Graph<std::shared_ptr<BaseCell>>());
+    graph = std::unique_ptr<Graph<std::shared_ptr<BaseCell>>>(new Graph<std::shared_ptr<BaseCell>>());
     // Initialize special to be connected to the board
     south_funnel_cell = std::make_shared<FunnelCell>(FunnelCell());
     north_funnel_cell = std::make_shared<FunnelCell>(FunnelCell());
@@ -68,7 +68,27 @@ public:
         Edge<std::shared_ptr<BaseCell>>(edge_cell, this->south_funnel_cell, 0));
   }
 
-// TODO: check connected north->south / east->west ends
+bool is_west_east_connected() {
+  bool connected = graph->dijkstra(get_west_funnel_cell(), get_east_funnel_cell()).size() > 0;
+  if (connected) {
+    // TODO: replace with proper logging
+    std::cout << "west -> east connected !!!" << std::endl;
+  }
+  return connected;
+}
+
+bool is_north_south_connected() {
+  bool connected = graph->dijkstra(get_north_funnel_cell(), get_south_funnel_cell()).size() > 0;
+  if (connected) {
+    // TODO: replace with proper logging
+    std::cout << "north -> south connected !!!" << std::endl;
+  }
+  return connected;
+}
+
+bool is_board_edges_connected() {
+  return (is_north_south_connected() || is_west_east_connected());
+}
 // TODO: get the longest path (a player should try to extend in the next move) as a strategy
 
 private:

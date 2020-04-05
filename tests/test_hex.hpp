@@ -154,6 +154,7 @@ TEST(HexBoardTest, should_build_graph_properly_and_connect_to_external_cells) {
                 hex_board.within_the_board(std::make_pair(0, 0)).get(),hex_board.within_the_board(std::make_pair(0, 2)).get())),
              2);
 
+  ASSERT_TRUE(player.is_board_edges_connected());
   auto path = player_graph.get()->dijkstra(player.get_west_funnel_cell(), player.get_east_funnel_cell());
   ASSERT_EQ(path.size()-1, 5);
   ASSERT_EQ(player_graph.get()->get_path_length(path), 3); //  the funnel cell is initially disconnected

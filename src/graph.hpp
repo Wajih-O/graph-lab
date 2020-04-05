@@ -334,7 +334,7 @@ public:
     }
 
     while(edges.size() > 0) {
-    // (we assume) that the egdges priority queue already filtered no loops
+    // (we assume) that the edges priority queue already filtered no loops
     auto candidate_edge = edges.top();
      if (closed.find(candidate_edge.to()) == closed.end()) {
       mst.push_back(candidate_edge);
