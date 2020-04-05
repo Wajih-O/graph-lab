@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "src/edge.hpp"
+#include "edge.hpp"
 
 TEST(Edge, should_edge_reverse_ends) {
     auto edge = mylib::Edge<int>(1, 2, 0.5, true);

@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <vector>
-#include "src/graph.hpp"
+#include "graph.hpp"
 
 
 TEST(Graph, should_return_direct_reachable_nodes) {

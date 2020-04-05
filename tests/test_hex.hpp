@@ -1,6 +1,5 @@
-#include "src/hex.hpp"
 #include <gtest/gtest.h>
-
+#include "hex/hex.hpp"
 
 
 TEST(HexBoardTest, should_create_a_cell_correctly) {

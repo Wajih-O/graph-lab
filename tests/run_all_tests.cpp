@@ -1,10 +1,10 @@
 #include <boost/optional.hpp>
 #include <gtest/gtest.h>
 
-#include "tests/test_edge.hpp"
-#include "tests/test_graph.hpp"
+#include "test_edge.hpp"
+#include "test_graph.hpp"
 
-#include "tests/test_hex.hpp"
+#include "test_hex.hpp"
 
 boost::optional<int> f(int x){
   if (x>0) {

@@ -26,21 +26,31 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 set(DEPENDENCIES_DIR /home/wo/deps)
 
 # include directories
-set(SRC_ROOT ./)
+set(SRC_ROOT ./src)
 set(TESTS_ROOT ./tests)
 
 include_directories(${SRC_ROOT})
 include_directories(${TESTS_ROOT})
 
+
+file (GLOB_RECURSE HEX_SRC_FILES
+    ${SRC_ROOT}/hex/*.h
+    ${SRC_ROOT}/hex/*.hpp
+    ${SRC_ROOT}/hex/*.tpp
+    ${SRC_ROOT}/hex/*.cpp
+)
+
 set(SRC_FILES
     src/list.hpp
     src/graph.hpp
     src/edge.hpp
-    src/hex.hpp
+    ${HEX_SRC_FILES}
     )
+
 
 file (GLOB_RECURSE UNIT_TESTS_SRC
     ${TESTS_ROOT}/*.h
+    ${TESTS_ROOT}/*.hpp
     ${TESTS_ROOT}/*.tpp
     ${TESTS_ROOT}/*.cpp
 )
@@ -60,6 +70,9 @@ target_link_libraries(dijkstra  ${BOOST_LIBRARIES})
 add_executable(mst src/mst.cpp ${SRC_FILES})
 target_link_libraries(mst  ${BOOST_LIBRARIES})
 
+
+# add_executable(updater src/updater.cpp ${SRC_FILES})
+# target_link_libraries(updater  ${BOOST_LIBRARIES})
 # Testing libraries
 
 #FakeIt
