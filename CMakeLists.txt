@@ -70,9 +70,6 @@ target_link_libraries(dijkstra  ${BOOST_LIBRARIES})
 add_executable(mst src/mst.cpp ${SRC_FILES})
 target_link_libraries(mst  ${BOOST_LIBRARIES})
 
-
-# add_executable(updater src/updater.cpp ${SRC_FILES})
-# target_link_libraries(updater  ${BOOST_LIBRARIES})
 # Testing libraries
 
 #FakeIt
