@@ -238,9 +238,6 @@ boost::optional<std::unique_ptr<Graph<std::shared_ptr<BaseCell>>>&> get_player_g
   }
 
 
-
-
-
   /*
    * Assign (allocate) the cell to a given player who played/selected the cell
    * @param cell: cell to assign to the player

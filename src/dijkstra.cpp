@@ -13,7 +13,7 @@
 
 
 /**
- * Graph example from wikipedia/disjkstra
+ * Graph example from wikipedia/dijkstra
  * https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm
  */
 
@@ -68,7 +68,7 @@ void string_graph() {
 
   // check path length
   std::cout << graph->get_path_length({"node_0", "node_3", "n_5", "n_2"})
-            << std::endl;
+	    << std::endl;
 
   auto reachable_from_node_3 = graph->neighbors("node_3");
   std::cout << *graph << std::endl;
