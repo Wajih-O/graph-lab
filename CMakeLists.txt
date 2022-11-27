@@ -4,8 +4,8 @@ enable_testing()
 include("./gate/cmake/HunterGate.cmake")
 
 HunterGate(
-    URL "https://github.com/ruslo/hunter/archive/v0.23.198.tar.gz"
-    SHA1 "f44b698691eedfe9d1ee6763a6fb9b4af7756c24"
+    URL "https://github.com/cpp-pm/hunter/archive/v0.24.8.tar.gz"
+    SHA1 "ca7838dded9a1811b04ffd56175f629e0af82d3d"
 )
 project("graph-lab")
 
@@ -67,6 +67,12 @@ set(BOOST_LIBRARIES Boost::system Boost::thread Boost::serialization Boost::file
 add_executable(dijkstra src/dijkstra.cpp ${SRC_FILES})
 target_link_libraries(dijkstra  ${BOOST_LIBRARIES})
 
+
+# create hex grid lab executable
+add_executable(draw_hex src/draw_hex.cpp ${SRC_FILES})
+target_link_libraries(draw_hex ${BOOST_LIBRARIES})
+
+
 add_executable(mst src/mst.cpp ${SRC_FILES})
 target_link_libraries(mst  ${BOOST_LIBRARIES})
 
@@ -75,12 +81,12 @@ target_link_libraries(mst  ${BOOST_LIBRARIES})
 #FakeIt
 hunter_add_package(FakeIt)
 find_package(FakeIt CONFIG REQUIRED)
+
 # GTest
 hunter_add_package(GTest)
 find_package(GTest CONFIG REQUIRED)
-find_package(GMock CONFIG REQUIRED)
 
-set(TEST_LIBRARIES  ${BOOST_LIBRARIES} FakeIt::FakeIt GTest::main GMock::gmock pthread)
+set(TEST_LIBRARIES  ${BOOST_LIBRARIES} FakeIt::FakeIt GTest::gtest_main GTest::gmock pthread)
 set(TEST_SRC ${UNIT_TESTS_SRC} ${SRC_FILES})
 
 # Create test executable
